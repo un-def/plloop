@@ -7,7 +7,7 @@ plloop — Python-like Lua Object-Oriented Programming system
 
 ### How to use it
 
-```
+```lua
 local plloop = require('plloop')
 
 
