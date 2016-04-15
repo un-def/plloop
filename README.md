@@ -19,7 +19,7 @@ local myclass = plloop.create_class('MyClass', {
    end,
 
    -- def __str__(self)
-    __tostring = function(self, initial_value)
+    __tostring = function(self)
         return ('<%s obj: %s>'):format(self.__class__.__name__, self.value)
    end,
 
