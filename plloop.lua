@@ -7,6 +7,10 @@ local metamethods = {
    -- '__index', '__nexindex', '__tostring', '__call', '__metatable'
 }
 
+local function get_table_id(tbl)
+   return tostring(tbl):sub(8)
+end
+
 local function get_method(cls, method_name)
    local method = rawget(cls, method_name)
    if type(method) == 'function' then return method end
@@ -28,6 +32,7 @@ local function create_class(cls_name, attrs)
 
    Class.__name__ = cls_name
    Class.__class__ = Class
+   Class.__classid__ = get_table_id(Class)
    Class.__meta__ = ClassMeta
 
    for key, value in pairs(attrs) do
@@ -45,7 +50,7 @@ local function create_class(cls_name, attrs)
       -- class call (constructor + __init__)
       if is_class(self, Class) then
          local instance = {}
-         instance.__id__ = tostring(instance):sub(8)
+         instance.__id__ = get_table_id(instance)
          setmetatable(instance, ClassMeta)
          local init_method = get_method(Class, '__init__')
          if init_method then init_method(instance, ...) end

@@ -30,6 +30,10 @@ TestClassCreation = {
    testSpecialAttrMetaRefersToClassMetatable = function(self)
       luaunit.assertIs(self.class.__meta__, getmetatable(self.class))
    end
+   ,
+   testSpecialAttrClassidPattern = function(self)
+      luaunit.assertStrMatches(self.class.__classid__, '0x%w+')
+   end
 
 }
 
