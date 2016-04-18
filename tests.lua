@@ -112,7 +112,7 @@ TestMethods = {
 }
 
 
-TestMetaMethods = {
+TestMetamethods = {
 
    setUp = function(self)
       self.class_tostring_default = plloop.create_class(
@@ -125,27 +125,59 @@ TestMetaMethods = {
             end
          }
       )
+      self.class_add_custom = plloop.create_class('AddCustomClass', {
+         __init__ = function(self, value)
+            self.value = value
+         end,
+         __add = function(self, other)
+            return self.value + other.value
+         end
+      })
    end
    ,
-   testDefaultTostringMethod = function(self)
+   testDefaultTostringMetamethod = function(self)
       local obj = self.class_tostring_default()
       luaunit.assertStrMatches(
          tostring(obj), '<TostringDefaultClass instance: 0x%w+>')
    end
    ,
-   testCustomTostringMethod = function(self)
+   testCustomTostringMetamethod = function(self)
       local obj = self.class_tostring_custom()
       luaunit.assertStrMatches(tostring(obj), '%[TostringCustomClass:0x%w+%]')
    end
    ,
-   testOverloadedTostringMethod = function(self)
+   testOverloadedTostringMetamethod = function(self)
       self.class_tostring_custom.__tostring = function(self)
          return ('<Overloaded:%s>'):format(self.__id__)
       end
       local obj = self.class_tostring_custom()
       luaunit.assertStrMatches(tostring(obj), '<Overloaded:0x%w+%>')
    end
-
+   ,
+   testCustomAddMetamethod = function(self)
+      local obj1 = self.class_add_custom(5)
+      local obj2 = self.class_add_custom(7)
+      luaunit.assertEquals(obj1 + obj2, 12)
+   end
+   ,
+   testOverloadedAddMetamethod = function(self)
+      local obj1 = self.class_add_custom(5)
+      local obj2 = self.class_add_custom(7)
+      local new_add = function(self, other)
+         return self.value + other.value + 5
+      end
+      self.class_add_custom.__add = new_add
+      luaunit.assertEquals(obj1 + obj2, 17)
+   end
+   ,
+   testDynamicallyAddedLenMetamethod = function(self)
+      local obj = self.class_add_custom(333)
+      local len = function(self)
+         return 50
+      end
+      self.class_add_custom.__len = len
+      luaunit.assertEquals(#obj, 50)
+   end
 }
 
 

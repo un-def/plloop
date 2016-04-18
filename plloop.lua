@@ -4,7 +4,7 @@ local events = {
    'add', 'sub', 'mul', 'div', 'mod', 'pow', 'unm', 'idiv',
    'band', 'bor', 'bxor', 'bnot', 'shl', 'shr',
    'concat', 'len', 'eq', 'lt', 'le',
-   -- 'index', 'nexindex', 'call'
+   -- 'index', 'nexindex', 'tostring', 'call', 'metatable'
 }
 
 local metamethods = {}
