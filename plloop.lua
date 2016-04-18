@@ -7,6 +7,10 @@ local metamethods = {
    -- '__index', '__nexindex', '__tostring', '__call', '__metatable'
 }
 
+local function bool(value)
+   return not not value
+end
+
 local function get_table_id(tbl)
    return tostring(tbl):sub(8)
 end
@@ -16,14 +20,25 @@ local function get_method(cls, method_name)
    if type(method) == 'function' then return method end
 end
 
--- temp workaround; we need __classid__ or something
 local function is_class(obj, cls)
-   if rawget(obj, '__class__') then
+   -- is_class(obj) - checks whether lua obj is a class (any)
+   -- is_class(obj, cls) - checks whether lua obj is a 'cls' class
+   if type(obj) ~= 'table' then return false end
+   if not rawget(obj, '__class__') then
+      return false
+   elseif cls == nil then
       return true
    else
-      return false
+      return (obj.__classid__ == cls.__classid__)
    end
 end
+
+local function is_object(obj)
+   -- checks whether lua obj is an object (class instance)
+   if type(obj) ~= 'table' then return false end
+   return bool(rawget(obj, '__id__'))
+end
+
 
 local function create_class(cls_name, attrs)
 
@@ -41,14 +56,14 @@ local function create_class(cls_name, attrs)
 
    for _, metamethod in ipairs(metamethods) do
       ClassMeta[metamethod] = function(self, ...)
-         if is_class(self, Class) then return end
+         if is_class(self) then return end
          return Class[metamethod](self, ...)
       end
    end
 
    ClassMeta.__call = function(self, ...)
       -- class call (constructor + __init__)
-      if is_class(self, Class) then
+      if is_class(self) then
          local instance = {}
          instance.__id__ = get_table_id(instance)
          setmetatable(instance, ClassMeta)
@@ -63,7 +78,7 @@ local function create_class(cls_name, attrs)
    end
 
    ClassMeta.__tostring = function(self)
-      if is_class(self, Class) then
+      if is_class(self) then
          return ('<%s>'):format(Class.__name__)
       else
          local tostring_method = get_method(Class, '__tostring')
@@ -76,7 +91,7 @@ local function create_class(cls_name, attrs)
    end
 
    ClassMeta.__index = function(self, key)
-      if is_class(self, Class) then return end
+      if is_class(self) then return end
       -- try to get class attribute
       local value = rawget(Class, key)
       -- bound method implementation
@@ -95,7 +110,7 @@ local function create_class(cls_name, attrs)
    end
 
    ClassMeta.__newindex = function(self, key, value)
-      if is_class(self, Class) then
+      if is_class(self) then
          rawset(Class, key, value)
          return
       end
@@ -116,5 +131,7 @@ end
 
 return {
    create_class = create_class,
+   is_class = is_class,
+   is_object = is_object,
    VERSION = VERSION,
 }
