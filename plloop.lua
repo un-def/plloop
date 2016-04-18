@@ -1,24 +1,25 @@
 local VERSION = '0.0.1'
 
-local events = {
-   'add', 'sub', 'mul', 'div', 'mod', 'pow', 'unm', 'idiv',
-   'band', 'bor', 'bxor', 'bnot', 'shl', 'shr',
-   'concat', 'len', 'eq', 'lt', 'le',
-   -- 'index', 'nexindex', 'tostring', 'call', 'metatable'
+local metamethods = {
+   '__add', '__sub', '__mul', '__div', '__mod', '__pow', '__unm', '__idiv',
+   '__band', '__bor', '__bxor', '__bnot', '__shl', '__shr',
+   '__concat', '__len', '__eq', '__lt', '__le',
+   -- '__index', '__nexindex', '__tostring', '__call', '__metatable'
 }
-
-local metamethods = {}
-
-for _, event in ipairs(events) do
-   metamethods['__'..event] = true
-end
-
 
 local function get_method(cls, method_name)
    local method = rawget(cls, method_name)
    if type(method) == 'function' then return method end
 end
 
+-- temp workaround; we need __classid__ or something
+local function is_class(obj, cls)
+   if rawget(obj, '__class__') then
+      return true
+   else
+      return false
+   end
+end
 
 local function create_class(cls_name, attrs)
 
@@ -31,13 +32,18 @@ local function create_class(cls_name, attrs)
 
    for key, value in pairs(attrs) do
       Class[key] = value
-      if metamethods[key] then ClassMeta[key] = Class[key] end
    end
 
+   for _, metamethod in ipairs(metamethods) do
+      ClassMeta[metamethod] = function(self, ...)
+         if is_class(self, Class) then return end
+         return Class[metamethod](self, ...)
+      end
+   end
 
    ClassMeta.__call = function(self, ...)
       -- class call (constructor + __init__)
-      if self == Class then
+      if is_class(self, Class) then
          local instance = {}
          instance.__id__ = tostring(instance):sub(8)
          setmetatable(instance, ClassMeta)
@@ -51,9 +57,8 @@ local function create_class(cls_name, attrs)
       end
    end
 
-
    ClassMeta.__tostring = function(self)
-      if self == Class then
+      if is_class(self, Class) then
          return ('<%s>'):format(Class.__name__)
       else
          local tostring_method = get_method(Class, '__tostring')
@@ -65,9 +70,8 @@ local function create_class(cls_name, attrs)
       end
    end
 
-
    ClassMeta.__index = function(self, key)
-      if self == Class then return end
+      if is_class(self, Class) then return end
       -- try to get class attribute
       local value = rawget(Class, key)
       -- bound method implementation
@@ -85,9 +89,8 @@ local function create_class(cls_name, attrs)
       return value
    end
 
-
    ClassMeta.__newindex = function(self, key, value)
-      if self == Class then
+      if is_class(self, Class) then
          rawset(Class, key, value)
          return
       end
@@ -99,7 +102,6 @@ local function create_class(cls_name, attrs)
          rawset(self, key, value)
       end
    end
-
 
    setmetatable(Class, ClassMeta)
    return Class
