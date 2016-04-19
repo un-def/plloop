@@ -207,6 +207,24 @@ TestMetamethods = {
       local obj = self.class_tostring_custom()
       luaunit.assertFalse(self.class_tostring_default == obj)
    end
+   ,
+   testDefaultEqMetamethodObjectAndSameObjectAreEqual = function(self)
+      local obj = self.class_tostring_default()
+      luaunit.assertTrue(obj == obj)
+   end
+   ,
+   testDefaultEqMetamethodObjectAndDifferentObjectAreEqual = function(self)
+      local obj1 = self.class_tostring_default()
+      local obj2 = self.class_tostring_default()
+      luaunit.assertFalse(obj1 == obj2)
+   end
+   ,
+   testDefaultEqMetamethodObjectAndDifferentClassObjectAreNotEqual = function(
+         self)
+      local obj1 = self.class_tostring_default()
+      local obj2 = self.class_tostring_custom()
+      luaunit.assertFalse(obj1 == obj2)
+   end
 
 }
 
