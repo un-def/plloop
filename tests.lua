@@ -4,6 +4,12 @@ luaunit = require('luaunit')
 plloop = require('plloop')
 
 
+_, _, LUA_VERSION_MAJOR, LUA_VERSION_MINOR = _VERSION:find('^Lua (%d)%.(%d)')
+LUA_VERSION = tonumber(LUA_VERSION_MAJOR .. LUA_VERSION_MINOR)
+LUA_VERSION_MAJOR = tonumber(LUA_VERSION_MAJOR)
+LUA_VERSION_MINOR = tonumber(LUA_VERSION_MINOR)
+
+
 TestClassCreation = {
 
    setUp = function(self)
@@ -176,7 +182,14 @@ TestMetamethods = {
          return 50
       end
       self.class_add_custom.__len = len
-      luaunit.assertEquals(#obj, 50)
+      local expected
+      -- Lua < 5.2 doesn't support __len metamethod
+      if LUA_VERSION > 51 then
+         expected = 50
+      else
+         expected = 0
+      end
+      luaunit.assertEquals(#obj, expected)
    end
    ,
    testClassEqMetamethodSameClassIsEqual = function(self)
