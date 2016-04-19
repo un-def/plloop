@@ -23,16 +23,13 @@ end
 local function is_class(obj, cls)
    -- is_class(obj) - checks whether lua obj is a class (any)
    -- is_class(obj, cls) - checks whether lua obj is a 'cls' class
-   if type(obj) ~= 'table' then return false end
-   local obj_classid = rawget(obj, '__classid__')
-   if not obj_classid then
+   if type(obj) ~= 'table' or not rawget(obj, '__classid__') then
       return false
    elseif cls == nil then
       return true
    else
-      if type(cls) ~= 'table' then return false end
-      local cls_classid = rawget(cls, '__classid__')
-      return (obj_classid == cls_classid)
+      if not is_class(cls) then return false end
+      return rawequal(obj, cls)
    end
 end
 
