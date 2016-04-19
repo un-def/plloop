@@ -325,6 +325,47 @@ TestHelperFunctions = {
       local obj = self.class_one()
       luaunit.assertTrue(plloop.is_object(obj))
    end
+   ,
+   testClassIsNotInstanceOfSameClass = function(self)
+      luaunit.assertFalse(plloop.instance_of(self.class_one, self.class_one))
+   end
+   ,
+   testClassIsNotInstanceOfDifferentClass = function(self)
+      luaunit.assertFalse(plloop.instance_of(self.class_one, self.class_two))
+   end
+   ,
+   testClassObjectIsNotInstanceOfDifferentClass = function(self)
+      local obj_one = self.class_one()
+      luaunit.assertFalse(plloop.instance_of(obj_one, self.class_two))
+   end
+   ,
+   testObjectIsNotInstanceOfSameObject = function(self)
+      local obj_one = self.class_one()
+      luaunit.assertFalse(plloop.instance_of(obj_one, obj_one))
+   end
+   ,
+   testClassIsNotInstanceOfSameClassObject = function(self)
+      local obj_one = self.class_one()
+      luaunit.assertFalse(plloop.instance_of(self.class_one, obj_one))
+   end
+   ,
+   testTableIsNotInstanceOfClass = function(self)
+      luaunit.assertFalse(plloop.instance_of({}, self.class_one))
+   end
+   ,
+   testTableIsNotInstanceOfSameTable = function(self)
+      local tbl = {}
+      luaunit.assertFalse(plloop.instance_of(tbl, tbl))
+   end
+   ,
+   testNilIsNotInstanceOfNil = function(self)
+      luaunit.assertFalse(plloop.instance_of(nil, nil))
+   end
+   ,
+   testClassObjectIsInstanceOfSameClass = function(self)
+      local obj_one = self.class_one()
+      luaunit.assertTrue(plloop.instance_of(obj_one, self.class_one))
+   end
 
 }
 

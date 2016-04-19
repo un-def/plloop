@@ -39,6 +39,12 @@ local function is_object(obj)
    return bool(rawget(obj, '__id__'))
 end
 
+local function instance_of(obj, cls)
+   -- checks whether 'obj' is an instance of 'cls'
+   if not is_object(obj) or not is_class(cls) then return false end
+   return (obj.__class__ == cls)
+end
+
 
 local function create_class(cls_name, attrs)
 
@@ -152,5 +158,6 @@ return {
    create_class = create_class,
    is_class = is_class,
    is_object = is_object,
+   instance_of = instance_of,
    VERSION = VERSION,
 }
