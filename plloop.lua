@@ -24,12 +24,15 @@ local function is_class(obj, cls)
    -- is_class(obj) - checks whether lua obj is a class (any)
    -- is_class(obj, cls) - checks whether lua obj is a 'cls' class
    if type(obj) ~= 'table' then return false end
-   if not rawget(obj, '__class__') then
+   local obj_classid = rawget(obj, '__classid__')
+   if not obj_classid then
       return false
    elseif cls == nil then
       return true
    else
-      return (obj.__classid__ == cls.__classid__)
+      if type(cls) ~= 'table' then return false end
+      local cls_classid = rawget(cls, '__classid__')
+      return (obj_classid == cls_classid)
    end
 end
 
@@ -45,112 +48,110 @@ local function instance_of(obj, cls)
    return (obj.__class__ == cls)
 end
 
-
-local function create_class(cls_name, attrs)
-
-   local Class = {}
-   local ClassMeta = {}
-
-   Class.__name__ = cls_name
-   Class.__class__ = Class
-   Class.__classid__ = get_table_id(Class)
-   Class.__meta__ = ClassMeta
-
+local function create_class(name, attrs)
+   local cls = {
+      __name__ = name,
+      __meta__ = meta,
+   }
+   cls.__classid__ = get_table_id(cls)
    for key, value in pairs(attrs) do
-      Class[key] = value
+      cls[key] = value
    end
+   setmetatable(cls, meta)
+   return cls
+end
 
-   for _, metamethod in ipairs(metamethods) do
-      ClassMeta[metamethod] = function(self, ...)
-         if is_class(self) then return end
-         return Class[metamethod](self, ...)
-      end
-   end
 
-   ClassMeta.__call = function(self, ...)
-      -- class call (constructor + __init__)
-      if is_class(self) then
-         local instance = {}
-         instance.__id__ = get_table_id(instance)
-         setmetatable(instance, ClassMeta)
-         local init_method = get_method(Class, '__init__')
-         if init_method then init_method(instance, ...) end
-         return instance
-      -- instance call (__call)
-      else
-         local call_method = get_method(Class, '__call')
-         if call_method then return call_method(self, ...) end
-      end
-   end
+meta = {}
 
-   ClassMeta.__tostring = function(self)
-      if is_class(self) then
-         return ('<%s>'):format(Class.__name__)
-      else
-         local tostring_method = get_method(Class, '__tostring')
-         if tostring_method then
-            return tostring_method(self)
-         else
-            return ('<%s instance: %s>'):format(Class.__name__, self.__id__)
-         end
-      end
-   end
-
-   ClassMeta.__eq = function(self, other)
-      if is_class(self) then
-         return is_class(self, other)
-      else
-         local eq_method = get_method(Class, '__eq')
-         if eq_method then
-            return eq_method(self, other)
-         else
-            if not is_object(other) then
-               return false
-            else
-               return (self.__id__ == other.__id__)
-            end
-         end
-      end
-   end
-
-   ClassMeta.__index = function(self, key)
+for _, metamethod in ipairs(metamethods) do
+   meta[metamethod] = function(self, ...)
       if is_class(self) then return end
-      -- try to get class attribute
-      local value = rawget(Class, key)
-      -- bound method implementation
-      if type(value) == 'function' then
-         return function(...)
-            return value(self, ...)
+      return self.__class__[metamethod](self, ...)
+   end
+end
+
+meta.__call = function(self, ...)
+   -- class call (constructor + __init__)
+   if is_class(self) then
+      local instance = {}
+      instance.__id__ = get_table_id(instance)
+      instance.__class__ = self
+      setmetatable(instance, meta)
+      local init_method = get_method(self, '__init__')
+      if init_method then init_method(instance, ...) end
+      return instance
+   -- instance call (__call)
+   else
+      local call_method = get_method(self.__class__, '__call')
+      if call_method then return call_method(self, ...) end
+   end
+end
+
+meta.__tostring = function(self)
+   if is_class(self) then
+      return ('<%s>'):format(self.__name__)
+   else
+      local tostring_method = get_method(self.__class__, '__tostring')
+      if tostring_method then
+         return tostring_method(self)
+      else
+         return ('<%s instance: %s>'):format(
+            self.__class__.__name__, self.__id__)
+      end
+   end
+end
+
+meta.__eq = function(self, other)
+   if is_class(self) then
+      return is_class(self, other)
+   else
+      local eq_method = get_method(self.__class__, '__eq')
+      if eq_method then
+         return eq_method(self, other)
+      else
+         if not is_object(other) then
+            return false
+         else
+            return (self.__id__ == other.__id__)
          end
       end
-      -- __getattr__ implementation
-      if value == nil then
-         local index_method = get_method(Class, '__index')
-         if index_method then return index_method(self, key) end
-      end
-      -- ignore class-only attribute
-      if key == '__classid__' then return end
-      -- class attribute implementation (or nil)
-      return value
    end
+end
 
-   ClassMeta.__newindex = function(self, key, value)
-      if is_class(self) then
-         rawset(Class, key, value)
-         return
-      end
-      -- __setattr__ implementation (like __getattr__, not __getattribute__)
-      local newindex_method = get_method(Class, '__newindex')
-      if newindex_method then
-         newindex_method(self, key, value)
-      else
-         rawset(self, key, value)
+meta.__index = function(self, key)
+   if is_class(self) then return end
+   -- try to get class attribute
+   local value = rawget(self.__class__, key)
+   -- bound method implementation
+   if type(value) == 'function' then
+      return function(...)
+         return value(self, ...)
       end
    end
+   -- __getattr__ implementation
+   if value == nil then
+      local index_method = get_method(self.__class__, '__index')
+      if index_method then return index_method(self, key) end
+   end
+   -- ignore class-only attribute
+   if key == '__classid__' then return end
+   -- class attribute implementation (or nil)
+   return value
+end
 
-   setmetatable(Class, ClassMeta)
-   return Class
-
+meta.__newindex = function(self, key, value)
+   if is_class(self) then
+      rawset(self, key, value)
+      return
+   end
+   -- __setattr__ implementation (like __getattr__, not __getattribute__)
+   local newindex_method = get_method(self.__class__, '__newindex')
+   if newindex_method then
+      newindex_method(self, key, value)
+   else
+      rawset(self, key, value)
+   end
 end
 
 

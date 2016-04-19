@@ -18,10 +18,6 @@ TestClassCreation = {
       luaunit.assertEquals(tostring(self.class), '<MyClass>')
    end
    ,
-   testSpecialAttrClassRefersToClass = function(self)
-      luaunit.assertIs(self.class.__class__, self.class)
-   end
-   ,
    testSpecialAttrNameTostring = function(self)
       luaunit.assertEquals(
          tostring(self.class), ('<%s>'):format(self.class.__name__))
