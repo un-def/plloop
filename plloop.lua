@@ -3,8 +3,8 @@ local VERSION = '0.0.1'
 local metamethods = {
    '__add', '__sub', '__mul', '__div', '__mod', '__pow', '__unm', '__idiv',
    '__band', '__bor', '__bxor', '__bnot', '__shl', '__shr',
-   '__concat', '__len', '__eq', '__lt', '__le',
-   -- '__index', '__nexindex', '__tostring', '__call', '__metatable'
+   '__concat', '__len', '__lt', '__le',
+   -- '__eq', '__index', '__nexindex', '__tostring', '__call', '__metatable'
 }
 
 local function bool(value)
@@ -90,6 +90,23 @@ local function create_class(cls_name, attrs)
       end
    end
 
+   ClassMeta.__eq = function(self, other)
+      if is_class(self) then
+         return is_class(self, other)
+      else
+         local eq_method = get_method(Class, '__eq')
+         if eq_method then
+            return eq_method(self, other)
+         else
+            if not is_object(other) then
+               return false
+            else
+               return (self.__id__ == other.__id__)
+            end
+         end
+      end
+   end
+
    ClassMeta.__index = function(self, key)
       if is_class(self) then return end
       -- try to get class attribute
@@ -105,6 +122,8 @@ local function create_class(cls_name, attrs)
          local index_method = get_method(Class, '__index')
          if index_method then return index_method(self, key) end
       end
+      -- ignore class-only attribute
+      if key == '__classid__' then return end
       -- class attribute implementation (or nil)
       return value
    end

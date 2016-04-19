@@ -182,6 +182,32 @@ TestMetamethods = {
       self.class_add_custom.__len = len
       luaunit.assertEquals(#obj, 50)
    end
+   ,
+   testClassEqMetamethodSameClassIsEqual = function(self)
+      luaunit.assertTrue(
+         self.class_tostring_default == self.class_tostring_default)
+   end
+   ,
+   testClassEqMetamethodDifferentClassesAreNotEqual = function(self)
+      luaunit.assertFalse(
+      self.class_tostring_default == self.class_tostring_custom)
+   end
+   ,
+   testClassEqMetamethodClassAndTableAreNotEqual = function(self)
+      luaunit.assertFalse(self.class_tostring_default == {})
+   end
+   ,
+   testClassEqMetamethodClassAndSameClassObjectAreNotEqual = function(self)
+      local obj = self.class_tostring_default()
+      luaunit.assertFalse(self.class_tostring_default == obj)
+   end
+   ,
+   testClassEqMetamethodClassAndDifferentClassObjectAreNotEqual = function(
+         self)
+      local obj = self.class_tostring_custom()
+      luaunit.assertFalse(self.class_tostring_default == obj)
+   end
+
 }
 
 
