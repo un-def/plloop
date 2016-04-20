@@ -10,6 +10,7 @@ local metamethods = {
 local cls_attrs = {
    __name__ = true,
    __classid__ = true,
+   __superclass__ = true,
 }
 
 local function bool(value)
@@ -50,10 +51,13 @@ local function instance_of(obj, cls)
    return (obj.__class__ == cls)
 end
 
-local function create_class(name, attrs)
+local function create_class(name, attrs, super_cls)
    local cls = {}
    cls.__name__ = name
    cls.__classid__ = get_table_id(cls)
+   if is_class(super_cls) then
+      cls.__superclass__ = super_cls
+   end
    for key, value in pairs(attrs) do
       cls[key] = value
    end

@@ -239,6 +239,29 @@ TestMetamethods = {
 }
 
 
+TestSuperclasses = {
+
+   setUp = function(self)
+      self.superclass = plloop.create_class('SuperClass', {})
+      self.subclass = plloop.create_class('SuperClass', {}, self.superclass)
+   end
+   ,
+   testSuperclassHasNoSuperclass = function(self)
+      luaunit.assertIsNil(self.superclass.__superclass__)
+   end
+   ,
+   testSubclassSuperclassIsSuperclass = function(self)
+      luaunit.assertEquals(self.subclass.__superclass__, self.superclass)
+   end
+   ,
+   testSubclassWithTableAsSuperclassHasNoSuperclass = function(self)
+      local class = plloop.create_class('SuperClass', {}, {})
+      luaunit.assertIsNil(class.__superclass__)
+   end
+
+}
+
+
 TestHelperFunctions = {
 
    setUp = function(self)
