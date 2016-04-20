@@ -7,6 +7,11 @@ local metamethods = {
    -- '__eq', '__index', '__nexindex', '__tostring', '__call', '__metatable'
 }
 
+local cls_attrs = {
+   __name__ = true,
+   __classid__ = true,
+}
+
 local function bool(value)
    return not not value
 end
@@ -46,10 +51,8 @@ local function instance_of(obj, cls)
 end
 
 local function create_class(name, attrs)
-   local cls = {
-      __name__ = name,
-      __meta__ = meta,
-   }
+   local cls = {}
+   cls.__name__ = name
    cls.__classid__ = get_table_id(cls)
    for key, value in pairs(attrs) do
       cls[key] = value
@@ -132,7 +135,7 @@ meta.__index = function(self, key)
       if index_method then return index_method(self, key) end
    end
    -- ignore class-only attribute
-   if key == '__classid__' then return end
+   if cls_attrs[key] then return end
    -- class attribute implementation (or nil)
    return value
 end

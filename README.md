@@ -80,7 +80,6 @@ print(type(bound_method()))   -- number
 
 print(obj1.__id__, obj2.__id__, obj3.__id__)   -- 0x928bb0    0x929e20    0x92a260
 print(obj1.__class__, obj1.__class__.__name__)   --- <MyClass>    MyClass
-print(obj1.__meta__ == getmetatable(obj1))   -- true
 ```
 
 

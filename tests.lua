@@ -29,10 +29,6 @@ TestClassCreation = {
          tostring(self.class), ('<%s>'):format(self.class.__name__))
    end
    ,
-   testSpecialAttrMetaRefersToClassMetatable = function(self)
-      luaunit.assertIs(self.class.__meta__, getmetatable(self.class))
-   end
-   ,
    testSpecialAttrClassidPattern = function(self)
       luaunit.assertStrMatches(self.class.__classid__, '0x%w+')
    end
@@ -44,22 +40,27 @@ TestClassMeta = {
 
    setUp = function(self)
       self.class = plloop.create_class('MyClass', {})
+      self.meta = getmetatable(self.class)
    end
    ,
    testMetaCallIsFunction = function(self)
-      luaunit.assertIsFunction(self.class.__meta__.__call)
+      luaunit.assertIsFunction(self.meta.__call)
    end
    ,
    testMetaTostringIsFunction = function(self)
-      luaunit.assertIsFunction(self.class.__meta__.__tostring)
+      luaunit.assertIsFunction(self.meta.__tostring)
+   end
+   ,
+   testMetaEqIsFunction = function(self)
+      luaunit.assertIsFunction(self.meta.__eq)
    end
    ,
    testMetaIndexIsFunction = function(self)
-      luaunit.assertIsFunction(self.class.__meta__.__index)
+      luaunit.assertIsFunction(self.meta.__index)
    end
    ,
    testMetaNewindexIsFunction = function(self)
-      luaunit.assertIsFunction(self.class.__meta__.__newindex)
+      luaunit.assertIsFunction(self.meta.__newindex)
    end
 
 }
