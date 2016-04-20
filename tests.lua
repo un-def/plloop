@@ -245,15 +245,34 @@ TestSuperclasses = {
       self.superclass = plloop.create_class('SuperClass', {
          VAR = 'SUPER',
          LVL = 1,
+         __add = function(self, other)
+            return 'SuperClass __add'
+         end,
+         __sub = function(self, other)
+            return 'SuperClass __sub'
+         end,
+         __mul = function(self, other)
+            return 'SuperClass __mul'
+         end
       })
       self.subclass = plloop.create_class('SubClass', {
          LVL = 2,
+         __sub = function(self, other)
+            return 'SubClass __sub'
+         end,
+         __mul = function(self, other)
+            return 'SubClass __mul'
+         end
       }, self.superclass)
       self.subsubclass = plloop.create_class('SubSubClass', {
          LVL = 3,
+         __mul = function(self, other)
+            return 'SubSubClass __mul'
+         end
       }, self.subclass)
    end
    ,
+   -- __superclass__ tests
    testSuperclassHasNoSuperclass = function(self)
       luaunit.assertIsNil(self.superclass.__superclass__)
    end
@@ -267,6 +286,7 @@ TestSuperclasses = {
       luaunit.assertIsNil(class.__superclass__)
    end
    ,
+   -- SuperClass tests
    testSuperclassVarAttr = function(self)
       luaunit.assertEquals(self.superclass.VAR, 'SUPER')
    end
@@ -285,6 +305,22 @@ TestSuperclasses = {
       luaunit.assertEquals(superobj.LVL, 1)
    end
    ,
+   testSuperclassAddMetamethod = function(self)
+      local superobj = self.superclass()
+      luaunit.assertEquals((superobj + 1), 'SuperClass __add')
+   end
+   ,
+   testSuperclassSubMetamethod = function(self)
+      local superobj = self.superclass()
+      luaunit.assertEquals((superobj - 1), 'SuperClass __sub')
+   end
+   ,
+   testSuperclassMulMetamethod = function(self)
+      local superobj = self.superclass()
+      luaunit.assertEquals((superobj * 1), 'SuperClass __mul')
+   end
+   ,
+   -- SubClass tests
    testSubclassVarAttr = function(self)
       luaunit.assertEquals(self.subclass.VAR, 'SUPER')
    end
@@ -307,6 +343,30 @@ TestSuperclasses = {
       luaunit.assertEquals(self.subsubclass.VAR, 'SUPER')
    end
    ,
+   testSubclassAddMetamethodInherited = function(self)
+      local subobj = self.subclass()
+      luaunit.assertEquals((subobj + 1), 'SuperClass __add')
+   end
+   ,
+   testSubclassAddMetamethodOverloaded = function(self)
+      local subobj = self.subclass()
+      self.subclass.__add = function(self, other)
+         return 'SubClass __add overloaded'
+      end
+      luaunit.assertEquals((subobj + 1), 'SubClass __add overloaded')
+   end
+   ,
+   testSubclassSubMetamethod = function(self)
+      local subobj = self.subclass()
+      luaunit.assertEquals((subobj - 1), 'SubClass __sub')
+   end
+   ,
+   testSubclassMulMetamethod = function(self)
+      local subobj = self.subclass()
+      luaunit.assertEquals((subobj * 1), 'SubClass __mul')
+   end
+   ,
+   -- SubSubClass tests
    testSubsubclassObjectVarAttr = function(self)
       local subsubobj = self.subsubclass()
       luaunit.assertEquals(subsubobj.VAR, 'SUPER')
@@ -319,6 +379,36 @@ TestSuperclasses = {
    testSubsubclassObjectLvlAttr = function(self)
       local subsubobj = self.subsubclass()
       luaunit.assertEquals(subsubobj.LVL, 3)
+   end,
+   testSubsubclassAddMetamethodInherited = function(self)
+      local subsubobj = self.subsubclass()
+      luaunit.assertEquals((subsubobj + 1), 'SuperClass __add')
+   end
+   ,
+   testSubsubclassAddMetamethodOverloaded = function(self)
+      self.subsubclass.__add = function(self, other)
+         return 'SubSubClass __add overloaded'
+      end
+      local subsubobj = self.subsubclass()
+      luaunit.assertEquals((subsubobj + 1), 'SubSubClass __add overloaded')
+   end
+   ,
+   testSubsubclassSubMetamethodInherited = function(self)
+      local subsubobj = self.subsubclass()
+      luaunit.assertEquals((subsubobj - 1), 'SubClass __sub')
+   end
+   ,
+   testSubsubclassSubMetamethodOverloaded = function(self)
+      self.subsubclass.__sub = function(self, other)
+         return 'SubSubClass __sub overloaded'
+      end
+      local subsubobj = self.subsubclass()
+      luaunit.assertEquals((subsubobj - 1), 'SubSubClass __sub overloaded')
+   end
+   ,
+   testSubsubclassMulMetamethod = function(self)
+      local subsubobj = self.subsubclass()
+      luaunit.assertEquals((subsubobj * 1), 'SubSubClass __mul')
    end
 
 }

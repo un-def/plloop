@@ -22,7 +22,7 @@ local function get_table_id(tbl)
 end
 
 local function get_method(cls, method_name)
-   local method = rawget(cls, method_name)
+   local method = cls[method_name]
    if type(method) == 'function' then return method end
 end
 
@@ -68,10 +68,12 @@ end
 
 meta = {}
 
-for _, metamethod in ipairs(metamethods) do
-   meta[metamethod] = function(self, ...)
+for _, metamethod_name in ipairs(metamethods) do
+   meta[metamethod_name] = function(self, ...)
       if is_class(self) then return end
-      return self.__class__[metamethod](self, ...)
+      local metamethod = get_method(self.__class__, metamethod_name)
+      if not metamethod then return end
+      return metamethod(self, ...)
    end
 end
 
