@@ -1,7 +1,7 @@
 plloop — Python-like Lua Object-Oriented Programming system
 ===========================================================
 
-`plloop` module provides a naive Lua OOP implementation, just like in Python, but ugly. And without inheritance (at all). And ugly. Made in one night. J4F.
+`plloop` module provides a naive Lua OOP implementation, just like in Python, but ugly. And without ~~inheritance (at all)~~ multiple inheritance (single/multilevel inheritance only). And ugly. Made in one night. J4F.
 
 
 
@@ -87,7 +87,7 @@ print(obj1.__class__, obj1.__class__.__name__)   --- <MyClass>    MyClass
 
 ```$ ./run_tests.sh```
 
-This script tests `plloop` with Lua 5.1, 5.2, and 5.3.
+This script tests `plloop` with Lua 5.1, 5.2, and 5.3 (you need [luaunit](https://github.com/bluebird75/luaunit) module somewhere in `package.path`).
 
 
 
