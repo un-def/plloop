@@ -242,8 +242,16 @@ TestMetamethods = {
 TestSuperclasses = {
 
    setUp = function(self)
-      self.superclass = plloop.create_class('SuperClass', {})
-      self.subclass = plloop.create_class('SuperClass', {}, self.superclass)
+      self.superclass = plloop.create_class('SuperClass', {
+         VAR = 'SUPER',
+         LVL = 1,
+      })
+      self.subclass = plloop.create_class('SubClass', {
+         LVL = 2,
+      }, self.superclass)
+      self.subsubclass = plloop.create_class('SubSubClass', {
+         LVL = 3,
+      }, self.subclass)
    end
    ,
    testSuperclassHasNoSuperclass = function(self)
@@ -257,6 +265,60 @@ TestSuperclasses = {
    testSubclassWithTableAsSuperclassHasNoSuperclass = function(self)
       local class = plloop.create_class('SuperClass', {}, {})
       luaunit.assertIsNil(class.__superclass__)
+   end
+   ,
+   testSuperclassVarAttr = function(self)
+      luaunit.assertEquals(self.superclass.VAR, 'SUPER')
+   end
+   ,
+   testSuperclassObjectVarAttr = function(self)
+      local superobj = self.superclass()
+      luaunit.assertEquals(superobj.VAR, 'SUPER')
+   end
+   ,
+   testSuperclassLvlAttr = function(self)
+      luaunit.assertEquals(self.superclass.LVL, 1)
+   end
+   ,
+   testSuperclassObjectLvlAttr = function(self)
+      local superobj = self.superclass()
+      luaunit.assertEquals(superobj.LVL, 1)
+   end
+   ,
+   testSubclassVarAttr = function(self)
+      luaunit.assertEquals(self.subclass.VAR, 'SUPER')
+   end
+   ,
+   testSubclassObjectVarAttr = function(self)
+      local subobj = self.subclass()
+      luaunit.assertEquals(subobj.VAR, 'SUPER')
+   end
+   ,
+   testSubclassLvlAttr = function(self)
+      luaunit.assertEquals(self.subclass.LVL, 2)
+   end
+   ,
+   testSubclassObjectLvlAttr = function(self)
+      local subobj = self.subclass()
+      luaunit.assertEquals(subobj.LVL, 2)
+   end
+   ,
+   testSubsubclassVarAttr = function(self)
+      luaunit.assertEquals(self.subsubclass.VAR, 'SUPER')
+   end
+   ,
+   testSubsubclassObjectVarAttr = function(self)
+      local subsubobj = self.subsubclass()
+      luaunit.assertEquals(subsubobj.VAR, 'SUPER')
+   end
+   ,
+   testSubsubclassLvlAttr = function(self)
+      luaunit.assertEquals(self.subsubclass.LVL, 3)
+   end
+   ,
+   testSubsubclassObjectLvlAttr = function(self)
+      local subsubobj = self.subsubclass()
+      luaunit.assertEquals(subsubobj.LVL, 3)
    end
 
 }

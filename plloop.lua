@@ -124,9 +124,14 @@ meta.__eq = function(self, other)
 end
 
 meta.__index = function(self, key)
-   if is_class(self) then return end
+   if is_class(self) then
+      -- inheritance
+      local super_cls = rawget(self, '__superclass__')
+      if not is_class(super_cls) then return end
+      return super_cls[key]
+   end
    -- try to get class attribute
-   local value = rawget(self.__class__, key)
+   local value = self.__class__[key]
    -- bound method implementation
    if type(value) == 'function' then
       return function(...)
