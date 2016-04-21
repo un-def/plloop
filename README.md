@@ -115,31 +115,10 @@ print(sobj.get_value())    -- 9
 sobj(8)({})(true)(12)('15')
 print(sobj.get_value())    -- 44 (9+8+0+0+12+15)
 
-print(sobj.get_double_value())    -- 18
+print(sobj.get_double_value())    -- 88
 
 print(mysubclass.__superclass__ == myclass)    -- true
-}
 
--- Lua >= 5.3
-local mysubclass = plloop.create_class('MySubClass', sub_attrs) << myclass
-
--- all supported Lua version
-local mysubclass = plloop.create_class('MySubClass', sub_attrs, myclass)
-
-
-print(mysubclass)    -- <MySubClass>
-
-local sobj = mysubclass(9)
-print(sobj)    -- [MySubClass obj: 9]
-
-print(sobj.get_value())    -- 9
-
-sobj(8)({})(true)(12)('15')
-print(sobj.get_value())    -- 44 (9+8+0+0+12+15)
-
-print(sobj.get_double_value())    -- 18
-
-print(mysubclass.__superclass__ == myclass)    -- true
 ```
 
 
