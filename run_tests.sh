@@ -9,7 +9,7 @@ do
         echo " :::\nLua interpreter not found"
     else
         echo " ($LUA_BIN) :::"
-        eval $LUA_BIN tests.lua
+        eval $LUA_BIN plloop_tests.lua
     fi
     echo "\n====================\n"
 done
