@@ -126,6 +126,17 @@ meta.__eq = function(self, other)
    end
 end
 
+-- sugar: class << superclass - set superclass (works only with Lua 5.3+)
+meta.__shl = function(self, value)
+   if is_class(self) then
+      set_superclass(self, value)
+      return self
+   else
+      local shl_method = get_method(self.__class__, '__shl')
+      if shl_method then return shl_method(self, value) end
+   end
+end
+
 meta.__index = function(self, key)
    if is_class(self) then
       -- inheritance

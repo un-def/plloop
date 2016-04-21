@@ -265,6 +265,10 @@ TestSuperclasses = {
             return 'SubSubClass __mul'
          end
       }, self.subclass)
+      self.shl_test = [[
+         local super_cls = ...
+         return plloop.create_class('TestClass', {}) << super_cls
+      ]]
    end
    ,
    -- __superclass__ tests
@@ -404,6 +408,26 @@ TestSuperclasses = {
    testSubsubclassMulMetamethod = function(self)
       local subsubobj = self.subsubclass()
       luaunit.assertEquals((subsubobj * 1), 'SubSubClass __mul')
+   end
+   ,
+   -- Lua 5.3+ '<<' operator tests
+   testSetClassAsSuperClassWithShlOperator = function(self)
+      if LUA_VERSION < 53 then return end
+      local class = load(self.shl_test)(self.superclass)
+      luaunit.assertEquals(class.__superclass__, self.superclass)
+   end
+   ,
+   testSetTableAsSuperClassWithShlOperator = function(self)
+      if LUA_VERSION < 53 then return end
+      local class = load(self.shl_test)({})
+      luaunit.assertIsNil(class.__superclass__)
+   end
+   ,
+   testSetClassObjectAsSuperClassWithShlOperator = function(self)
+      if LUA_VERSION < 53 then return end
+      local obj = self.superclass()
+      local class = load(self.shl_test)(obj)
+      luaunit.assertIsNil(class.__superclass__)
    end
 
 }
