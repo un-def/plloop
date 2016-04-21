@@ -8,6 +8,8 @@ plloop — Python-like Lua Object-Oriented Programming system
 ### How to use it
 
 ```lua
+#!/usr/bin/lua
+
 local plloop = require('plloop')
 
 
@@ -80,6 +82,42 @@ print(type(bound_method()))   -- number
 
 print(obj1.__id__, obj2.__id__, obj3.__id__)   -- 0x928bb0    0x929e20    0x92a260
 print(obj1.__class__, obj1.__class__.__name__)   --- <MyClass>    MyClass
+
+
+local sub_attrs = {
+
+   -- overloaded method
+    __tostring = function(self)
+        return ('[%s obj: %s]'):format(self.__class__.__name__, self.value)
+   end,
+
+   -- additional method
+   get_double_value = function(self)
+      return self.value * 2
+   end
+
+}
+
+-- Lua >= 5.3
+local mysubclass = plloop.create_class('MySubClass', sub_attrs) << myclass
+
+-- all supported Lua version
+local mysubclass = plloop.create_class('MySubClass', sub_attrs, myclass)
+
+
+print(mysubclass)   -- <MySubClass>
+
+local sobj = mysubclass(9)
+print(sobj)   -- [MySubClass obj: 9]
+
+print(sobj.get_value())   -- 9
+
+sobj(8)({})(true)(12)('15')
+print(sobj.get_value())   -- 44 (9+8+0+0+12+15)
+
+print(sobj.get_double_value())   -- 18
+
+print(mysubclass.__superclass__ == myclass)   -- true
 ```
 
 
