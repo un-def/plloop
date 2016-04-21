@@ -178,19 +178,14 @@ TestMetamethods = {
    end
    ,
    testDynamicallyAddedLenMetamethod = function(self)
+      -- Lua < 5.2 doesn't support __len metamethod
+      if LUA_VERSION < 52 then return end
       local obj = self.class_add_custom(333)
       local len = function(self)
          return 50
       end
       self.class_add_custom.__len = len
-      local expected
-      -- Lua < 5.2 doesn't support __len metamethod
-      if LUA_VERSION > 51 then
-         expected = 50
-      else
-         expected = 0
-      end
-      luaunit.assertEquals(#obj, expected)
+      luaunit.assertEquals(#obj, 50)
    end
    ,
    testClassEqMetamethodSameClassIsEqual = function(self)
