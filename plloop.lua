@@ -121,11 +121,7 @@ meta.__eq = function(self, other)
       if eq_method then
          return eq_method(self, other)
       else
-         if not is_object(other) then
-            return false
-         else
-            return (self.__id__ == other.__id__)
-         end
+         return rawequal(self, other)
       end
    end
 end
