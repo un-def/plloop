@@ -51,13 +51,18 @@ local function instance_of(obj, cls)
    return (obj.__class__ == cls)
 end
 
+local function set_superclass(cls, super_cls)
+   if (not is_class(cls) or not is_class(super_cls) or
+      is_class(cls, super_cls)) then return false end
+   cls.__superclass__ = super_cls
+   return true
+end
+
 local function create_class(name, attrs, super_cls)
    local cls = {}
    cls.__name__ = name
    cls.__classid__ = get_table_id(cls)
-   if is_class(super_cls) then
-      cls.__superclass__ = super_cls
-   end
+   set_superclass(cls, super_cls)
    for key, value in pairs(attrs) do
       cls[key] = value
    end
