@@ -26,6 +26,11 @@ local function get_method(cls, method_name)
     if type(method) == 'function' then return method end
 end
 
+local function call_method(cls, method_name, ...)
+    local method = get_method(cls, method_name)
+    if method then return method(...) end
+end
+
 local function is_class(obj, cls)
     -- is_class(obj) - checks whether lua obj is a class (any)
     -- is_class(obj, cls) - checks whether lua obj is a 'cls' class
@@ -76,9 +81,7 @@ meta = {}
 for _, metamethod_name in ipairs(metamethods) do
     meta[metamethod_name] = function(self, ...)
         if is_class(self) then return end
-        local metamethod = get_method(self.__class__, metamethod_name)
-        if not metamethod then return end
-        return metamethod(self, ...)
+        return call_method(self.__class__, metamethod_name, self, ...)
     end
 end
 
@@ -89,13 +92,11 @@ meta.__call = function(self, ...)
         instance.__id__ = get_table_id(instance)
         instance.__class__ = self
         setmetatable(instance, meta)
-        local init_method = get_method(self, '__init__')
-        if init_method then init_method(instance, ...) end
+        call_method(self, '__init__', instance, ...)
         return instance
     -- instance call (__call)
     else
-        local call_method = get_method(self.__class__, '__call')
-        if call_method then return call_method(self, ...) end
+        return call_method(self.__class__, '__call', self, ...)
     end
 end
 
@@ -132,8 +133,7 @@ meta.__shl = function(self, value)
         set_superclass(self, value)
         return self
     else
-        local shl_method = get_method(self.__class__, '__shl')
-        if shl_method then return shl_method(self, value) end
+        return call_method(self.__class__, '__shl', self, value)
     end
 end
 
@@ -154,8 +154,7 @@ meta.__index = function(self, key)
     end
     -- __getattr__ implementation
     if value == nil then
-        local index_method = get_method(self.__class__, '__index')
-        if index_method then return index_method(self, key) end
+        return call_method(self.__class__, '__index', self, key)
     end
     -- ignore class-only attribute
     if cls_attrs[key] then return end
