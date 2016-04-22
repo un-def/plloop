@@ -50,17 +50,45 @@ local function is_object(obj)
     return bool(rawget(obj, '__id__'))
 end
 
-local function instance_of(obj, cls)
-    -- checks whether 'obj' is an instance of 'cls'
-    if not is_object(obj) or not is_class(cls) then return false end
-    return (obj.__class__ == cls)
+local function get_superclass(cls)
+    if not is_class(cls) then return end
+    local super_cls = rawget(cls, '__superclass__')
+    if not is_class(super_cls) then return end
+    return super_cls
 end
 
 local function set_superclass(cls, super_cls)
     if (not is_class(cls) or not is_class(super_cls) or
         is_class(cls, super_cls)) then return false end
-    cls.__superclass__ = super_cls
+    rawset(cls, '__superclass__', super_cls)
     return true
+end
+
+local function subclass_of(sub_cls, super_cls)
+    local sub_cls_super = get_superclass(sub_cls)
+    if not sub_cls_super then return false end
+    if is_class(sub_cls_super, super_cls) then return true end
+    return subclass_of(sub_cls_super, super_cls)
+end
+
+local function instance_of(obj, cls, direct_only)
+    --[[
+        checks whether 'obj' is an instance of 'cls'
+        direct_only = true - check without inheritance (default: false):
+        SubClass << SuperClass
+        > subclass_obj = SubClass()
+        > instance_of(subclass_obj, SuperClass)
+        true
+        > instance_of(subclass_obj, SuperClass, false)
+        true
+        > instance_of(subclass_obj, SuperClass, true)
+        false
+    ]]
+    if not is_object(obj) or not is_class(cls) then return false end
+    local obj_cls = rawget(obj, '__class__')
+    if is_class(obj_cls, cls) then return true end
+    if direct_only then return false end
+    return subclass_of(obj_cls, cls)
 end
 
 local function create_class(name, attrs, super_cls)
@@ -182,5 +210,6 @@ return {
     is_class = is_class,
     is_object = is_object,
     instance_of = instance_of,
+    subclass_of = subclass_of,
     VERSION = VERSION,
 }

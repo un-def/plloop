@@ -438,8 +438,13 @@ TestHelperFunctions = {
     setUp = function(self)
         self.class_one = plloop.create_class('ClassOne', {})
         self.class_two = plloop.create_class('ClassTwo', {})
+        self.class_one_sub = plloop.create_class(
+            'ClassOneSub', {}, self.class_one)
+        self.class_one_sub_sub = plloop.create_class(
+            'ClassOneSubSub', {}, self.class_one_sub)
     end
     ,
+    -- is_class tests
     testStringIsNotClass = function(self)
         luaunit.assertFalse(plloop.is_class('foo'))
     end
@@ -515,6 +520,7 @@ TestHelperFunctions = {
         luaunit.assertTrue(plloop.is_class(self.class_two, self.class_two))
     end
     ,
+    -- is_object tests
     testStringIsNotObject = function(self)
         luaunit.assertFalse(plloop.is_object('foo'))
     end
@@ -548,6 +554,7 @@ TestHelperFunctions = {
         luaunit.assertTrue(plloop.is_object(obj))
     end
     ,
+    -- instance_of tests
     testClassIsNotInstanceOfSameClass = function(self)
         luaunit.assertFalse(plloop.instance_of(
             self.class_one, self.class_one))
@@ -589,6 +596,114 @@ TestHelperFunctions = {
     testClassObjectIsInstanceOfSameClass = function(self)
         local obj_one = self.class_one()
         luaunit.assertTrue(plloop.instance_of(obj_one, self.class_one))
+    end
+    ,
+    testSublassObjectIsInstanceOfSuperclass = function(self)
+        local obj_one_sub = self.class_one_sub()
+        luaunit.assertTrue(plloop.instance_of(obj_one_sub, self.class_one))
+    end
+    ,
+    testSubsubclassObjectIsInstanceOfSuperclass = function(self)
+        local obj_one_sub_sub = self.class_one_sub_sub()
+        luaunit.assertTrue(
+            plloop.instance_of(obj_one_sub_sub, self.class_one))
+    end
+    ,
+    testClassIsNotDirectInstanceOfSameClass = function(self)
+        luaunit.assertFalse(plloop.instance_of(
+            self.class_one, self.class_one, true))
+    end
+    ,
+    testClassIsNotDirectInstanceOfDifferentClass = function(self)
+        luaunit.assertFalse(plloop.instance_of(
+            self.class_one, self.class_two, true))
+    end
+    ,
+    testClassObjectIsNotDirectInstanceOfDifferentClass = function(self)
+        local obj_one = self.class_one()
+        luaunit.assertFalse(plloop.instance_of(obj_one, self.class_two, true))
+    end
+    ,
+    testObjectIsNotDirectInstanceOfSameObject = function(self)
+        local obj_one = self.class_one()
+        luaunit.assertFalse(plloop.instance_of(obj_one, obj_one, true))
+    end
+    ,
+    testClassIsNotDirectInstanceOfSameClassObject = function(self)
+        local obj_one = self.class_one()
+        luaunit.assertFalse(plloop.instance_of(self.class_one, obj_one, true))
+    end
+    ,
+    testClassObjectIsDirectInstanceOfSameClass = function(self)
+        local obj_one = self.class_one()
+        luaunit.assertTrue(plloop.instance_of(obj_one, self.class_one, true))
+    end
+    ,
+    testSublassObjectIsNotDirectInstanceOfSuperclass = function(self)
+        local obj_one_sub = self.class_one_sub()
+        luaunit.assertFalse(
+            plloop.instance_of(obj_one_sub, self.class_one, true))
+    end
+    ,
+    testSubsubclassObjectIsNotDirectInstanceOfSuperclass = function(self)
+        local obj_one_sub_sub = self.class_one_sub_sub()
+        luaunit.assertFalse(
+            plloop.instance_of(obj_one_sub_sub, self.class_one, true))
+    end
+    ,
+    -- subclass_of tests
+    testTableIsNotClassSubclass = function(self)
+        luaunit.assertFalse(plloop.subclass_of({}, self.class_one))
+    end
+    ,
+    testTableIsNotTableSubclass = function(self)
+        local obj = self.class_one()
+        luaunit.assertFalse(plloop.subclass_of({}, {}))
+    end
+    ,
+    testClassObjectIsNotClassSubclass = function(self)
+        local obj = self.class_one()
+        luaunit.assertFalse(plloop.subclass_of(obj, self.class_one))
+    end
+    ,
+    testClassObjectIsNotClassObjectSubclass = function(self)
+        local obj = self.class_one()
+        luaunit.assertFalse(plloop.subclass_of(obj, obj))
+    end
+    ,
+    testClassIsNotSameClassSubclass = function(self)
+        luaunit.assertFalse(
+            plloop.subclass_of(self.class_one, self.class_one))
+    end
+    ,
+    testClassTwoIsNotClassOneSubclass = function(self)
+        luaunit.assertFalse(
+            plloop.subclass_of(self.class_two, self.class_one))
+    end
+    ,
+    testClassOneSubIsClassOneSubclass = function(self)
+        luaunit.assertTrue(
+            plloop.subclass_of(self.class_one_sub, self.class_one))
+    end
+    ,
+    testClassOneIsNotClassOneSubSubclass = function(self)
+        luaunit.assertFalse(
+            plloop.subclass_of(self.class_one, self.class_one_sub))
+    end
+    ,
+    testClassOneSubSubIsClassOneSubSubclass = function(self)
+        luaunit.assertTrue(
+            plloop.subclass_of(self.class_one_sub_sub, self.class_one_sub))
+    end
+    ,
+    testClassOneSubSubIsClassOneSubclass = function(self)
+        luaunit.assertTrue(
+            plloop.subclass_of(self.class_one_sub_sub, self.class_one))
+    end
+    ,
+    testClassOneSubSubIsNotClassTwoSubclass = function(self)
+        luaunit.assertFalse(
+            plloop.subclass_of(self.class_one_sub_sub, self.class_two))
     end
 
 }
