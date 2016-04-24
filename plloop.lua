@@ -207,6 +207,7 @@ end
 
 return {
     create_class = create_class,
+    class = create_class,
     is_class = is_class,
     is_object = is_object,
     instance_of = instance_of,

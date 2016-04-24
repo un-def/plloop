@@ -13,7 +13,7 @@ plloop — Python-like Lua Object-Oriented Programming system
 local plloop = require('plloop')
 
 
-local myclass = plloop.create_class('MyClass', {
+local CurrySum = plloop.class('CurrySum', {
 
     -- def __init__(self, ...)
     __init__ = function(self, initial_value)
@@ -55,36 +55,35 @@ local myclass = plloop.create_class('MyClass', {
 })
 
 
-print(myclass)    -- <MyClass>
+print(CurrySum)    -- <CurrySum>
 
-local obj1 = myclass(7)
-print(obj1)    -- <MyClass obj: 7>
+local sum1 = CurrySum(7)
+print(sum1)    -- <CurrySum obj: 7>
 
-obj1(3)('1')(nil)(10)
-print(obj1)    -- <MyClass obj: 21> (7+3+1+0+10)
+sum1(3)('1')(nil)(10)
+print(sum1)    -- <CurrySum obj: 21> (7+3+1+0+10)
 
-local obj2 = myclass(23)
-print(obj2)    -- <MyClass obj: 23>
+local sum2 = CurrySum(23)
+print(sum2)    -- <CurrySum obj: 23>
 
-print(obj1 + obj2)    -- 44 (21+23)
-print(obj1 + 5)    --- 26 (21+5)
-print(obj2 + nil)    --- 23 (23+0)
+print(sum1 + sum2)    -- 44 (21+23)
+print(sum1 + 5)    --- 26 (21+5)
+print(sum2 + nil)    --- 23 (23+0)
 
-local obj3 = myclass(obj2)
-print(obj3)    -- <MyClass obj: 23>
+local sum3 = CurrySum(sum2)
+print(sum3)    -- <MyClass obj: 23>
 
-obj3.set_value('43')
-print(obj3.get_value())    -- 43
-print(myclass.get_value(obj3))    -- 43
-local bound_method = obj3.get_value
+sum3.set_value('43')
+print(sum3.get_value())    -- 43
+print(CurrySum.get_value(sum3))    -- 43
+local bound_method = sum3.get_value
 print(bound_method())    -- 43
-print(type(bound_method()))    -- number
 
-print(obj1.__id__, obj2.__id__, obj3.__id__)    -- 0x928bb0    0x929e20    0x92a260
-print(obj1.__class__, obj1.__class__.__name__)    --- <MyClass>    MyClass
+print(sum1.__id__, sum2.__id__, sum3.__id__)    -- 0x928bb0    0x929e20    0x92a260
+print(sum1.__class__, sum1.__class__.__name__)    --- <CurrySum>    CurrySum
 
 
-local sub_attrs = {
+local subclass_attrs = {
 
     -- overloaded method
     __tostring = function(self)
@@ -98,27 +97,32 @@ local sub_attrs = {
 
 }
 
--- Lua >= 5.3
-local mysubclass = plloop.create_class('MySubClass', sub_attrs) << myclass
+-- Lua 5.3
+local SubCurrySum = plloop.class('SubCurrySum', subclass_attrs) << CurrySum
 
 -- all supported Lua versions
-local mysubclass = plloop.create_class('MySubClass', sub_attrs, myclass)
+local SubCurrySum = plloop.class('SubCurrySum', subclass_attrs, CurrySum)
 
 
-print(mysubclass)    -- <MySubClass>
+print(SubCurrySum)    -- <SubCurrySum>
 
-local sobj = mysubclass(9)
-print(sobj)    -- [MySubClass obj: 9]
+local subsum = SubCurrySum(9)
+print(subsum)    -- [SubCurrySum obj: 9]
 
-print(sobj.get_value())    -- 9
+print(subsum.get_value())    -- 9
 
-sobj(8)({})(true)(12)('15')
-print(sobj.get_value())    -- 44 (9+8+0+0+12+15)
+subsum(8)({})(true)(12)('15')
+print(subsum.get_value())    -- 44 (9+8+0+0+12+15)
 
-print(sobj.get_double_value())    -- 88
+print(subsum.get_double_value())    -- 88
 
-print(mysubclass.__superclass__ == myclass)    -- true
 
+print(plloop.is_object(subsum))    -- true
+print(plloop.instance_of(subsum, SubCurrySum))    -- true
+print(plloop.instance_of(subsum, CurrySum))    -- true
+print(plloop.instance_of(subsum, CurrySum, true))    -- false (third arg - direct_only)
+print(plloop.is_class(SubCurrySum))    -- true
+print(plloop.subclass_of(SubCurrySum, CurrySum))    -- true
 ```
 
 
