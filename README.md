@@ -10,10 +10,14 @@ plloop — Python-like Lua Object-Oriented Programming system
 ```lua
 #!/usr/bin/lua
 
+PLLOOP_GLOBAL = true    -- export all module functions to global scope
+-- it's possible to specify exported functions:
+-- PLLOOP_GLOBAL = {'class', 'instance_of', 'subclass_of'}
+
 local plloop = require('plloop')
+-- any function is always acceptable as plloop.function
 
-
-local CurrySum = plloop.class('CurrySum', {
+local CurrySum = class('CurrySum', {
 
     -- def __init__(self, ...)
     __init__ = function(self, initial_value)
@@ -98,10 +102,10 @@ local subclass_attrs = {
 }
 
 -- Lua 5.3
-local SubCurrySum = plloop.class('SubCurrySum', subclass_attrs) << CurrySum
+local SubCurrySum = class('SubCurrySum', subclass_attrs) << CurrySum
 
 -- all supported Lua versions
-local SubCurrySum = plloop.class('SubCurrySum', subclass_attrs, CurrySum)
+local SubCurrySum = class('SubCurrySum', subclass_attrs, CurrySum)
 
 
 print(SubCurrySum)    -- <SubCurrySum>
@@ -117,10 +121,10 @@ print(subsum.get_value())    -- 44 (9+8+0+0+12+15)
 print(subsum.get_double_value())    -- 88
 
 
-print(plloop.is_object(subsum))    -- true
-print(plloop.instance_of(subsum, SubCurrySum))    -- true
-print(plloop.instance_of(subsum, CurrySum))    -- true
-print(plloop.instance_of(subsum, CurrySum, true))    -- false (third arg - direct_only)
+print(is_object(subsum))    -- true
+print(instance_of(subsum, SubCurrySum))    -- true
+print(instance_of(subsum, CurrySum))    -- true
+print(instance_of(subsum, CurrySum, true))    -- false (third arg - direct_only)
 print(plloop.is_class(SubCurrySum))    -- true
 print(plloop.subclass_of(SubCurrySum, CurrySum))    -- true
 ```

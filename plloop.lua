@@ -205,12 +205,31 @@ meta.__newindex = function(self, key, value)
 end
 
 
-return {
+local export = {
     create_class = create_class,
     class = create_class,
     is_class = is_class,
     is_object = is_object,
     instance_of = instance_of,
     subclass_of = subclass_of,
-    VERSION = VERSION,
 }
+
+local export_global = false
+if PLLOOP_GLOBAL == true or PLLOOP_GLOBAL == 'all' then
+    export_global = true
+elseif type(PLLOOP_GLOBAL) == 'table' then
+    export_global = {}
+    for _, name in ipairs(PLLOOP_GLOBAL) do
+        export_global[name] = true
+    end
+end
+if export_global then
+    for name, func in pairs(export) do
+        if export_global == true or export_global[name] then
+            _G[name] = func
+        end
+    end
+end
+
+export.VERSION = VERSION
+return export
