@@ -1,4 +1,4 @@
-local VERSION = '0.0.1'
+local VERSION = '0.1.0'
 
 local metamethods = {
     '__add', '__sub', '__mul', '__div', '__mod', '__pow', '__unm', '__idiv',
