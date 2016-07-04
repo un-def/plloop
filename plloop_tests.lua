@@ -1,16 +1,19 @@
 #!/usr/bin/lua
 
+-- luacheck: globals luaunit plloop
+-- luacheck: ignore 211 212 432
 luaunit = require('luaunit')
 plloop = require('plloop')
 
 
-_, _, LUA_VERSION_MAJOR, LUA_VERSION_MINOR = _VERSION:find('^Lua (%d)%.(%d)')
-LUA_VERSION = tonumber(LUA_VERSION_MAJOR .. LUA_VERSION_MINOR)
-LUA_VERSION_MAJOR = tonumber(LUA_VERSION_MAJOR)
-LUA_VERSION_MINOR = tonumber(LUA_VERSION_MINOR)
+local _, _, LUA_VERSION_MAJOR, LUA_VERSION_MINOR = _VERSION:find(
+    '^Lua (%d)%.(%d)')
+local LUA_VERSION = tonumber(LUA_VERSION_MAJOR .. LUA_VERSION_MINOR)
+LUA_VERSION_MAJOR = tonumber(LUA_VERSION_MAJOR)   -- luacheck: no unused
+LUA_VERSION_MINOR = tonumber(LUA_VERSION_MINOR)   -- luacheck: no unused
 
 
-TestClassCreation = {
+local TestClassCreation = {
 
     setUp = function(self)
         self.class = plloop.create_class('MyClass', {})
@@ -36,7 +39,7 @@ TestClassCreation = {
 }
 
 
-TestClassMeta = {
+local TestClassMeta = {
 
     setUp = function(self)
         self.class = plloop.create_class('MyClass', {})
@@ -66,7 +69,7 @@ TestClassMeta = {
 }
 
 
-TestMethods = {
+local TestMethods = {
 
     setUp = function(self)
         self.class = plloop.create_class('MyClass', {
@@ -119,7 +122,7 @@ TestMethods = {
 }
 
 
-TestMetamethods = {
+local TestMetamethods = {
 
     setUp = function(self)
         self.class_tostring_default = plloop.create_class(
@@ -234,7 +237,7 @@ TestMetamethods = {
 }
 
 
-TestSuperclasses = {
+local TestSuperclasses = {
 
     setUp = function(self)
         self.superclass = plloop.create_class('SuperClass', {
@@ -433,7 +436,7 @@ TestSuperclasses = {
 }
 
 
-TestHelperFunctions = {
+local TestHelperFunctions = {
 
     setUp = function(self)
         self.class_one = plloop.create_class('ClassOne', {})
@@ -657,7 +660,6 @@ TestHelperFunctions = {
     end
     ,
     testTableIsNotTableSubclass = function(self)
-        local obj = self.class_one()
         luaunit.assertFalse(plloop.subclass_of({}, {}))
     end
     ,

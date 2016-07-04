@@ -13,6 +13,8 @@ local cls_attrs = {
     __superclass__ = true,
 }
 
+local meta = {}
+
 local function bool(value)
     return not not value
 end
@@ -103,8 +105,6 @@ local function create_class(name, attrs, super_cls)
     return cls
 end
 
-
-meta = {}
 
 for _, metamethod_name in ipairs(metamethods) do
     meta[metamethod_name] = function(self, ...)
